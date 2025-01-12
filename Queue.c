@@ -1,68 +1,88 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
-#define MAX 100
-//last in last out
 
-struct Queue{
-int items[MAX];
-int front,rear;
-};
-//başlatma
-void initialize(struct Queue *q ){
-    q->front=-1;
-    q->rear=-1;
-}
-//ekleme
-void enQueue(struct Queue *q,int value){
-if(q->rear==MAX-1){
-    printf("Kuyruk Dolu");
-}
-if(q->front==-1){
-    q->front=0;
-}
-q->rear++;
-q->items[q->rear]=value;
-}
-//çıkarma
-void deQueue(struct Queue *q){
-if(q->front==-1){
-printf("Kuyruk Bos");
-}
-int value=q->items[q->front];
-q->front++;
-if(q->front>q->rear){ //kuyruk boşsa
-q->front=q->rear=-1;
-}
-return value;
-}
-//peek elemanı
-int peek(struct Queue *q){
-if(q->front==-1){
-    printf("Kuyruk Bos");
-}
-return q->items[q->front];
+// Node yapısı
+typedef struct Node {
+    int data;           // Veriyi tutacak
+    struct Node* next;  // Bir sonraki düğüme işaretçi
+} Node;
+
+// Queue yapısı
+typedef struct Queue {
+    Node* bas; // Kuyruğun başını gösterir
+    Node* son; // Kuyruğun sonunu gösterir
+} Queue;
+
+// Kuyruğu başlatma
+void initQueue(Queue* q) {
+    q->bas = NULL;
+    q->son = NULL;
 }
 
-//görüntüleme
-void printQueue(struct Queue *q){
-if(q->front==-1){
-    printf("Kuyruk Bos");
-}
-for(int i=q->front;i<=q->rear;i++){
-printf("%d  ",q->items[i]);
-}
-printf("\n");
+// Kuyruğa eleman ekleme
+void enQueue(Queue* q, int value) {
+    Node* yeni = (Node*)malloc(sizeof(Node));
+    yeni->data = value;
+    yeni->next = NULL;
+
+    if (q->son == NULL) { // Kuyruk boşsa
+        q->bas = yeni;
+        q->son = yeni;
+        return;
+    }
+
+    q->son->next = yeni; // Son düğümün next'ini yeni düğüme bağla
+    q->son = yeni;       // Sonu güncelle
 }
 
-int main(){
-    struct Queue * q;
-    initialize(&q);
-    enQueue(&q,2);
-    enQueue(&q,6);
-    enQueue(&q,7);
-    enQueue(&q,4);
-    enQueue(&q,8);
-    deQueue(&q);
+// Kuyruktan eleman çıkarma
+void deQueue(Queue* q) {
+    if (q->bas == NULL) { // Kuyruk boşsa
+        printf("Kuyruk boş\n");
+        return;
+    }
+
+    Node* temp = q->bas;    // Başı geçici olarak tut
+    q->bas = q->bas->next;  // Başı bir sonraki düğüme kaydır
+
+    if (q->bas == NULL) {   // Kuyruk tamamen boşsa
+        q->son = NULL;
+    }
+
+    free(temp); // Çıkarılan düğümü serbest bırak
+}
+
+// Kuyruğu yazdırma
+void printQueue(Queue* q) {
+    if (q->bas == NULL) {
+        printf("Kuyruk boş\n");
+        return;
+    }
+
+    Node* temp = q->bas;
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+// Ana fonksiyon
+int main() {
+    Queue q;
+    initQueue(&q);
+
+    enQueue(&q, 5);
+    enQueue(&q, 3);
+    enQueue(&q, 65);
+    enQueue(&q, 20);
+
+    printf("Kuyruk: ");
     printQueue(&q);
+
+    deQueue(&q);
+    printf("Dequeue Kuyruk: ");
+    printQueue(&q);
+
+    return 0;
 }
