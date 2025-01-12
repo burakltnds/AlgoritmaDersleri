@@ -1,103 +1,132 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-struct Node{
-int data;
-struct Node* next;
-};
+typedef struct Node {
+    int data;
+    struct Node* sonraki;
+} Node;
 
-struct Node* creataNode(int data){
-struct Node* newNode =(struct Node*) malloc(sizeof(struct Node));
-if(!newNode){
-    printf("Bellek Ayrilamadi.\n");
-    exit(1);
-}
-newNode->data=data;
-newNode->next=NULL;
-return newNode;
+typedef struct BagliList {
+    Node* head;
+} BagliList;
+
+void initialize(BagliList* liste) {
+    liste->head = NULL;
 }
 
-//baştan ekle
-void basaEkle(struct Node **head,int data){
-struct Node* newNode=creataNode(data);
-
-newNode->next=*head;
-*head=newNode;
-}
-//sondan ekle
-void sondanEkle(struct Node** head,int data){
-struct Node* newNode=creataNode(data);
-if(*head==NULL){
-    *head=newNode;
-    return ;
-}
-struct Node*temp=*head;
-while(temp->next!=NULL){
-temp=temp->next;
-}
-temp->next=newNode;
+void basEkle(BagliList* liste, int value) {
+    Node* yeni = (Node*)malloc(sizeof(Node));
+    yeni->data = value;
+    yeni->sonraki = liste->head;
+    liste->head = yeni;
 }
 
-//baştan sil
-void bastanSil(struct Node** head){
-    if(*head== NULL){
-        printf("Liste Bos");
-        return  ;
+void sonEkle(BagliList* liste, int value) {
+    Node* yeni = (Node*)malloc(sizeof(Node));
+    yeni->data = value;
+    yeni->sonraki = NULL;
+
+    if (liste->head == NULL) {
+        liste->head = yeni;
+        return;
     }
-struct Node*temp=*head;
-*head=(*head)->next;
-free(temp);
+
+    Node* temp = liste->head;
+    while (temp->sonraki != NULL) {
+        temp = temp->sonraki;
+    }
+    temp->sonraki = yeni;
 }
 
-//sondan sil
-void sondanSil(struct Node** head){
- if (*head==NULL){
-    printf("Liste Bos");
-    return ;
- }
- struct Node*temp = *head;
-if(temp->next==NULL ){
+void arayaEkle(BagliList* liste, int value, int index) {
+    if (index == 0) {
+        basEkle(liste, value);
+        return;
+    }
+
+    Node* yeni = (Node*)malloc(sizeof(Node));
+    yeni->data = value;
+
+    Node* temp = liste->head;
+    for (int i = 0; temp != NULL && i < index - 1; i++) {
+        temp = temp->sonraki;
+    }
+
+    if (temp == NULL) {
+        printf("Gecersiz Index Sona Eklendi\n");
+        sonEkle(liste, value);
+        return;
+    }
+
+    yeni->sonraki = temp->sonraki;
+    temp->sonraki = yeni;
+}
+
+void sondanSil(BagliList* liste) {
+    if (liste->head == NULL) {
+        printf("Liste Bos!!!\n");
+        return;
+    }
+
+    if (liste->head->sonraki == NULL) {
+        free(liste->head);
+        liste->head = NULL;
+        return;
+    }
+
+    Node* temp = liste->head;
+    while (temp->sonraki->sonraki != NULL) {
+        temp = temp->sonraki;
+    }
+
+    free(temp->sonraki);
+    temp->sonraki = NULL;
+}
+
+void bastanSil(BagliList* liste) {
+    if (liste->head == NULL) {
+        printf("Liste Bos!!!\n");
+        return;
+    }
+
+    Node* temp = liste->head;
+    liste->head = liste->head->sonraki;
     free(temp);
-    *head=NULL;
-    return ;
 }
 
-struct Node * prev=NULL;
-while(temp->next!=NULL){
-    prev=temp;
-    temp=temp->next;
-}
-prev->next=NULL;
-free(temp);
-}
+void display(BagliList* liste) {
+    if (liste->head == NULL) {
+        printf("Liste Bos!!!\n");
+        return;
+    }
 
-//listele
-
-void printList(struct Node**head){
-struct Node *temp=*head;
-while(temp!=NULL){
-printf("%d ->",temp->data);
-temp=temp->next;
-}
-printf("NULL\n");
+    Node* temp = liste->head;
+    while (temp != NULL) {
+        printf("%d -> ", temp->data);
+        temp = temp->sonraki;
+    }
+    printf("NULL\n");
 }
 
+int main() {
+    BagliList liste;
+    initialize(&liste);
 
-int main(){
-    struct Node*head=NULL;
-    basaEkle(&head,15);
-    basaEkle(&head,20);
-    basaEkle(&head,25);
-    basaEkle(&head,30);
-    basaEkle(&head,35);
-    sondanEkle(&head,2);
-    sondanEkle(&head,4);
-    sondanEkle(&head,6);
-    sondanEkle(&head,8);
-    sondanEkle(&head,10);
-    sondanSil(&head);
-    bastanSil(&head);
-    printList(&head);
+    basEkle(&liste, 10);
+    sonEkle(&liste, 20);
+    sonEkle(&liste, 30);
+    arayaEkle(&liste, 15, 1);
 
+    printf("Liste: ");
+    display(&liste);
 
+    bastanSil(&liste);
+    printf("Bastan Silindikten Sonra Liste: ");
+    display(&liste);
 
+    sondanSil(&liste);
+    printf("Sondan Silindikten Sonra Liste: ");
+    display(&liste);
+
+    return 0;
 }
