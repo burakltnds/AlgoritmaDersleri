@@ -1,74 +1,66 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
-#define MAX 100
-//last in first out
+#include <string.h>
 
-struct Stack{
-int data[MAX];
-int top;
-};
+typedef struct StackNode {
+    int data;
+    struct StackNode* sonra;
+} StackNode;
 
-void initialize(struct Stack*stack){
-stack->top=-1;
-}
-bool isFull(struct Stack * stack){
-return stack->top==MAX-1;
-}
-bool isEmpty(struct Stack * stack){
-return stack->top==-1;
+typedef struct Stack {
+    StackNode* top;
+} Stack;
+
+void initialize(Stack* stack) {
+    stack->top = NULL;
 }
 
-//ekle
-void push(struct Stack * stack,int value){
-    if(isFull(stack)){
-        printf("Dolu");
-        return ;
+void push(Stack* stack, int value) {
+    StackNode* yeni = (StackNode*)malloc(sizeof(StackNode));
+    yeni->data = value;
+    yeni->sonra = stack->top;
+    stack->top = yeni;
+}
+
+void pop(Stack* stack) {
+    if (stack->top == NULL) {
+        printf("Stack bos.\n");
+        return;
     }
-    return stack->data[++stack->top]=value;
+    StackNode* temp = stack->top;
+    stack->top = stack->top->sonra;
+    free(temp);
 }
 
-//çıkar
-int pop(struct Stack * stack){
-    if(isEmpty(stack)){
-        printf("Bos");
-        return ;
+void listele(Stack* stack) {
+    if (stack->top == NULL) {
+        printf("Stack bos\n");
+        return;
     }
-    return stack->data[stack->top--];
-}
-//en üst elemanı
-int peek(struct Stack * stack){
-    if(isEmpty(stack)){
-        printf("Bos");
-        return ;
+    StackNode* temp = stack->top;
+    while (temp != NULL) {
+        printf("%d\n", temp->data);
+        temp = temp->sonra;
     }
-    return stack->data[stack->top];
-}
-//görüntüle
-void display(struct Stack * stack){
-    if(isEmpty(stack)){
-        printf("Bos");
-        return ;
-    }
-    for(int i=0;i<=stack->top;i++){
-        printf("%d  " , stack->data[i]);
-
-    }
-    printf("\n");
 }
 
-int main(){
-   struct Stack stack;
-   initialize(&stack);
-    push(&stack,10);
-    push(&stack,15);
-    push(&stack,20);
-    push(&stack,25);
-    push(&stack,32);
-    push(&stack,7);
+void destroy(Stack* stack) {
+    while (stack->top != NULL) {
+        pop(stack);
+    }
+}
+
+int main() {
+    Stack stack;
+    initialize(&stack);
+    push(&stack, 14);
+    push(&stack, 10);
+    push(&stack, 5);
+    push(&stack, 7);
     pop(&stack);
-    display(&stack);
-    printf("peek: %d" , peek(&stack));
-    
-   
+    printf("Stack:\n");
+    listele(&stack);
+    destroy(&stack);
+
+    return 0;
 }
