@@ -1,58 +1,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Node yapısı
+
 typedef struct Node {
-    int data;           // Veriyi tutacak
-    struct Node* next;  // Bir sonraki düğüme işaretçi
+    int data;           
+    struct Node* next;  
 } Node;
 
-// Queue yapısı
 typedef struct Queue {
-    Node* bas; // Kuyruğun başını gösterir
-    Node* son; // Kuyruğun sonunu gösterir
+    Node* bas; 
+    Node* son;
 } Queue;
 
-// Kuyruğu başlatma
 void initQueue(Queue* q) {
     q->bas = NULL;
     q->son = NULL;
 }
 
-// Kuyruğa eleman ekleme
 void enQueue(Queue* q, int value) {
     Node* yeni = (Node*)malloc(sizeof(Node));
     yeni->data = value;
     yeni->next = NULL;
 
-    if (q->son == NULL) { // Kuyruk boşsa
+    if (q->son == NULL) {
         q->bas = yeni;
         q->son = yeni;
         return;
     }
-
-    q->son->next = yeni; // Son düğümün next'ini yeni düğüme bağla
-    q->son = yeni;       // Sonu güncelle
+    q->son->next = yeni; 
+    q->son = yeni;      
 }
 
-// Kuyruktan eleman çıkarma
 void deQueue(Queue* q) {
-    if (q->bas == NULL) { // Kuyruk boşsa
+    if (q->bas == NULL) { 
         printf("Kuyruk boş\n");
         return;
     }
 
-    Node* temp = q->bas;    // Başı geçici olarak tut
-    q->bas = q->bas->next;  // Başı bir sonraki düğüme kaydır
+    Node* temp = q->bas;    
+    q->bas = q->bas->next;  
 
-    if (q->bas == NULL) {   // Kuyruk tamamen boşsa
+    if (q->bas == NULL) {  
         q->son = NULL;
     }
 
-    free(temp); // Çıkarılan düğümü serbest bırak
+    free(temp); 
 }
 
-// Kuyruğu yazdırma
 void printQueue(Queue* q) {
     if (q->bas == NULL) {
         printf("Kuyruk boş\n");
@@ -67,7 +61,6 @@ void printQueue(Queue* q) {
     printf("\n");
 }
 
-// Ana fonksiyon
 int main() {
     Queue q;
     initQueue(&q);
